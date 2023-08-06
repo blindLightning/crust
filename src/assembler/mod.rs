@@ -10,5 +10,5 @@ pub mod program_parser;
 pub enum Token {
     Op{code: Opcode},
     Register{reg_num: u8},
-    integer_operand{value: i32},
+    IntegerOperand{value: i32},
 }

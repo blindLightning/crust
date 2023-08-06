@@ -1,4 +1,3 @@
-use nom::bytes::complete::tag;
 use nom::character::complete::alpha1;
 
 use crate::assembler::Token;

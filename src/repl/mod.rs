@@ -44,14 +44,23 @@ pub fn run(&mut self) {
                     println!("{register}");
                 }
             },
+            ".run" => {
+                self.vm.run();
+            },
+            ".start" => {
+                self.vm.pc=0;
+                self.vm.run();
+            },
+            ".step" => {
+                self.vm.run_once();
+            },
             _ => {
                 let parsed_program = Program(&buffer);
                 match &parsed_program {
-                    Ok(Result) => {
+                    Ok(_Result) => {
                         let (_, result) = &parsed_program.unwrap();
-                        let mut bytecode = result.to_bytes();
+                        let bytecode = result.to_bytes();
                         self.vm.add_bytes(bytecode);
-                        self.vm.run_once();
                     },
                     Err(e) => {
                         println!("{}", e);

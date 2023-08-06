@@ -3,10 +3,10 @@ use crate::instruction::Opcode;
 #[derive(Debug)]
 pub struct VM {
     pub registers: [i32; 32],
-    pc: usize,
+    pub pc: usize,
     pub program: Vec<u8>,
     remainder: u32,
-    EqualFlag: bool,
+    equal_flag: bool,
 }
 
 impl VM {
@@ -16,14 +16,16 @@ pub fn new() -> VM {
         pc: 0,
         program: vec![],
         remainder: 0,
-        EqualFlag: false,
+        equal_flag: false,
     }
 }
 
 pub fn run(&mut self) {
-    let mut is_done = false;
-    while !is_done {
-        is_done = self.execute_instruction();
+    while self.pc<self.program.len() {
+        let is_done = self.execute_instruction();
+        if !is_done {
+            break;
+        }
     }
 }
 pub fn run_once(&mut self) {
@@ -86,9 +88,9 @@ fn execute_instruction(&mut self) -> bool {
             let register1 = self.registers[self.next_8_bits() as usize];
             let register2 = self.registers[self.next_8_bits() as usize];
             if register1 == register2 {
-                self.EqualFlag=true;
+                self.equal_flag=true;
             } else {
-                self.EqualFlag=false;
+                self.equal_flag=false;
             }
             self.next_8_bits();
         },
@@ -96,9 +98,9 @@ fn execute_instruction(&mut self) -> bool {
             let register1 = self.registers[self.next_8_bits() as usize];
             let register2 = self.registers[self.next_8_bits() as usize];
             if register1 != register2 {
-                self.EqualFlag=true;
+                self.equal_flag=true;
             } else {
-                self.EqualFlag=false;
+                self.equal_flag=false;
             }
             self.next_8_bits();
         },
@@ -106,9 +108,9 @@ fn execute_instruction(&mut self) -> bool {
             let register1 = self.registers[self.next_8_bits() as usize];
             let register2 = self.registers[self.next_8_bits() as usize];
             if register1 > register2 {
-                self.EqualFlag=true;
+                self.equal_flag=true;
             } else {
-                self.EqualFlag=false;
+                self.equal_flag=false;
             }
             self.next_8_bits();
         },
@@ -116,9 +118,9 @@ fn execute_instruction(&mut self) -> bool {
             let register1 = self.registers[self.next_8_bits() as usize];
             let register2 = self.registers[self.next_8_bits() as usize];
             if register1 >= register2 {
-                self.EqualFlag=true;
+                self.equal_flag=true;
             } else {
-                self.EqualFlag=false;
+                self.equal_flag=false;
             }
             self.next_8_bits();
         },
@@ -126,9 +128,9 @@ fn execute_instruction(&mut self) -> bool {
             let register1 = self.registers[self.next_8_bits() as usize];
             let register2 = self.registers[self.next_8_bits() as usize];
             if register1 < register2 {
-                self.EqualFlag=true;
+                self.equal_flag=true;
             } else {
-                self.EqualFlag=false;
+                self.equal_flag=false;
             }
             self.next_8_bits();
         },
@@ -136,16 +138,16 @@ fn execute_instruction(&mut self) -> bool {
             let register1 = self.registers[self.next_8_bits() as usize];
             let register2 = self.registers[self.next_8_bits() as usize];
             if register1 <= register2 {
-                self.EqualFlag=true;
+                self.equal_flag=true;
             } else {
-                self.EqualFlag=false;
+                self.equal_flag=false;
             }
             self.next_8_bits();
         },
         Opcode::JEQ => {
             let register = self.next_8_bits() as usize;
             let target = self.registers[register];
-            if self.EqualFlag {
+            if self.equal_flag {
                 self.pc = target as usize;
             }
         },
@@ -163,7 +165,6 @@ fn decode_opcode(&mut self) -> Opcode {
 }
 fn next_8_bits(&mut self) -> u8 {
     let result = self.program[self.pc];
-    dbg!(self.pc);
     self.pc+=1;
     return result;
 }

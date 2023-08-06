@@ -8,6 +8,6 @@ pub fn integer_operand(i: parse::Input) -> parse::Result<Token> {
     let (i, _) = tag("#")(i)?;
     let (i, operand) = digit1(i)?;
     let operand = operand.parse::<i32>().unwrap();
-    let tok = Token::integer_operand { value: operand };
+    let tok = Token::IntegerOperand { value: operand };
     Ok((i, tok))
 }

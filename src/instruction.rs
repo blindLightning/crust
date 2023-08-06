@@ -104,7 +104,6 @@ fn from(value: Opcode) -> Self {
         Opcode::GTQ => 14,
         Opcode::LTQ => 15,
         Opcode::IGL => 16,
-        _ => 16
     }
 }
 }

@@ -1,4 +1,3 @@
-use nom::bytes::complete::tag;
 use nom::branch::alt;
 
 use super::Token;
@@ -16,7 +15,7 @@ pub struct AssemblerInstruction {
 }
 
 pub fn instruction(input: parse::Input) -> parse::Result<AssemblerInstruction> {
-    let result = alt((instruction_one, instruction_zero))(input)?;
+    let result = alt((instruction_three, instruction_two, instruction_one, instruction_zero))(input)?;
     Ok(result)
 }
 fn instruction_zero(input: parse::Input) -> parse::Result<AssemblerInstruction> {
@@ -32,10 +31,17 @@ fn instruction_zero(input: parse::Input) -> parse::Result<AssemblerInstruction> 
 
 fn instruction_one(input: parse::Input) -> parse::Result<AssemblerInstruction> {
     let (inp, o) = opcode_load(input)?;
-    let (inp, v1) = 
+    let (inp, r) = register(inp)?;
+    let tok = AssemblerInstruction{
+        opcode: o,
+        operand1: Some(r),
+        operand2: None,
+    operand3: None
+    };
+    Ok((inp, tok))
 }
-fn instruction_two(iinput: parse::Input) -> parse::Result<AssemblerInstruction> {
-    let (inp, o) = opcode_load(iinput)?;
+fn instruction_two(input: parse::Input) -> parse::Result<AssemblerInstruction> {
+    let (inp, o) = opcode_load(input)?;
     let (inp, r) = register(inp)?;
     let (_, i) = integer_operand(inp)?;
     let assembler_instruction = AssemblerInstruction{
@@ -47,7 +53,19 @@ fn instruction_two(iinput: parse::Input) -> parse::Result<AssemblerInstruction> 
     Ok((inp, assembler_instruction))
 }
 
-
+fn instruction_three(input: parse::Input) -> parse::Result<AssemblerInstruction> {
+    let (inp, o) = opcode_load(input)?;
+    let (inp, r1) = register(inp)?;
+    let (inp, r2) = register(inp)?;
+    let (inp, r3) = register(inp)?;
+    let tok = AssemblerInstruction{
+        opcode: o,
+        operand1: Some(r1),
+        operand2: Some(r2),
+        operand3: Some(r3)
+    };
+    Ok((inp, tok))
+}
 impl AssemblerInstruction {
 pub fn to_bytes(&self) -> Vec<u8> {
     let mut results = vec![];
@@ -75,7 +93,7 @@ fn extract_operand(t: &Token, results: &mut Vec<u8>) {
         Token::Register { reg_num }=> {
             results.push(*reg_num);
         },
-        Token::integer_operand { value } => {
+        Token::IntegerOperand { value } => {
             let converted = *value as u16;
             let byte1 = converted;
             let byte2 = converted >> 8;
