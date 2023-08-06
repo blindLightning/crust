@@ -40,14 +40,20 @@ fn instruction_one(input: parse::Input) -> parse::Result<AssemblerInstruction> {
     };
     Ok((inp, tok))
 }
+
 fn instruction_two(input: parse::Input) -> parse::Result<AssemblerInstruction> {
     let (inp, o) = opcode_load(input)?;
-    let (inp, r) = register(inp)?;
-    let (_, i) = integer_operand(inp)?;
+    let (inp, r1) = register(inp)?;
+    let res = register(inp);
+    let result = res.unwrap_or_else(|e| {
+        let result = integer_operand(inp).unwrap();
+        result
+    });
+    let (inp, r2) = result;
     let assembler_instruction = AssemblerInstruction{
         opcode: o,
-        operand1: Some(r),
-        operand2: Some(i),
+        operand1: Some(r1),
+        operand2: Some(r2),
         operand3: None
     };
     Ok((inp, assembler_instruction))

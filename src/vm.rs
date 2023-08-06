@@ -5,7 +5,8 @@ pub struct VM {
     pub registers: [i32; 32],
     pub pc: usize,
     pub program: Vec<u8>,
-    remainder: u32,
+    heap: Vec<u8>,
+    remainder: usize,
     equal_flag: bool,
 }
 
@@ -15,6 +16,7 @@ pub fn new() -> VM {
         registers: [0; 32],
         pc: 0,
         program: vec![],
+        heap: vec![],
         remainder: 0,
         equal_flag: false,
     }
@@ -66,7 +68,7 @@ fn execute_instruction(&mut self) -> bool {
             let register1 = self.registers[self.next_8_bits() as usize];
             let register2 = self.registers[self.next_8_bits() as usize];
             self.registers[self.next_8_bits() as usize] = register1 / register2;
-            self.remainder = (register1  % register2) as u32;
+            self.remainder = (register1  % register2) as usize;
         }
         Opcode::HLT => {
             println!("HLT encountered");
@@ -150,6 +152,12 @@ fn execute_instruction(&mut self) -> bool {
             if self.equal_flag {
                 self.pc = target as usize;
             }
+        },
+        Opcode::ALOC => {
+            let register = self.next_8_bits() as usize;
+            let bytes = self.registers[register];
+            let new_end = self.heap.len() as i32 + bytes;
+            self.heap.resize(new_end as usize, 0);
         },
         Opcode::IGL => {
             println!("invalid Opcode");

@@ -18,6 +18,7 @@ pub enum Opcode {
     LT,
     GTQ,
     LTQ,
+    ALOC,
     IGL
 }
 
@@ -55,6 +56,7 @@ impl From<u8> for Opcode {
             14 => return Opcode::GTQ,
             15 => return Opcode::LTQ,
             16 => return Opcode::IGL,
+            17 => Opcode::ALOC,
             _ => return Opcode::IGL
         }
     }
@@ -79,6 +81,7 @@ fn from(v: &str) -> Self {
         "ltq" => Opcode::LTQ,
         "gt" => Opcode::GT,
         "gtq" => Opcode::GTQ,
+        "aloc" => Opcode::ALOC,
         _ => Opcode::IGL
     }
 }
@@ -104,6 +107,7 @@ fn from(value: Opcode) -> Self {
         Opcode::GTQ => 14,
         Opcode::LTQ => 15,
         Opcode::IGL => 16,
+        Opcode::ALOC => 17,
     }
 }
 }
